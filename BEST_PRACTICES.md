@@ -51,12 +51,15 @@ This document is meant to be a quick reference for the agent and engineers worki
 - **Split code via dynamic imports** (`next/dynamic`) for expensive components.
 - **Use `React.lazy` + `Suspense`** when lazy-loading non-essential UI.
 - **Favor CSS Modules / Tailwind / CSS-in-JS** patterns that scope CSS and avoid global overrides.
+- **Use `.module.scss` for component-level styles** to keep styling scoped and ensure fast style updates.
+- **Keep global styles in `app/globals.scss`**, and break them into partials (e.g., `app/styles/_variables.scss`, `app/styles/_base.scss`) for maintainability.
 
 ---
 
 ## 6) When asking the agent for code changes
 
 When requesting changes from the agent, include:
+
 - The **goal** (e.g., improve performance, fix bug, refactor into reusable component).
 - Any existing file paths or component names.
 - Expected behavior or outcome (e.g., “should render on server”, “should avoid client bundle”).

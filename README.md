@@ -71,6 +71,6 @@ npm run start
 
 - `app/` — App Router pages, layouts, and data-fetching.
 - `public/` — Static assets.
-- `styles/` or `globals.css` — global styling.
+- `styles/` or `globals.scss` — global styling.
 
 ---
