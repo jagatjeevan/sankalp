@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sankalp — Todo List with Categories
 
-## Getting Started
+A lightweight **Next.js** todo list app where users can create **categories** to group and segregate tasks. Each category can hold its own set of todos, making it easy to organize work, shopping, personal goals, or any other task type.
 
-First, run the development server:
+---
+
+## 🧩 About the Project
+
+This project is a minimal, modern Next.js application focused on:
+
+- ✅ Creating and managing **multiple categories**
+- ✅ Adding, editing, and completing **todos** inside each category
+- ✅ Persisting task state locally via browser storage (or similar)
+- ✅ Keeping UI components reusable and small
+- ✅ Using the **App Router** (Next.js `app/` directory)
+
+---
+
+## 🛠 Tech Stack & Architecture
+
+- **Next.js (App Router)** — server components by default, with `use client` only where needed.
+- **React 19** — latest React features with concurrent rendering support.
+- **TypeScript** — type-safe components, models, and utilities.
+- **Tailwind CSS** (via `@tailwindcss/postcss`) — utility-first styling.
+- **ESLint + Prettier** — code consistency and formatting (see `eslint.config.mjs` + `.prettierrc`).
+
+### Tech details you can expand in the future
+
+- Add **persisted storage** (IndexedDB / localStorage) or backend sync (Supabase, Firebase, etc.).
+- Use **server-side data fetching** or API routes for external persistence.
+- Add **authentication** and user-specific task lists.
+- Use **dynamic imports** for heavy UI components to keep initial bundle size small.
+
+---
+
+## ▶️ Run Locally
+
+### 1) Install dependencies
+
+```bash
+npm install
+```
+
+### 2) Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3) Lint + format (recommended)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run format
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧪 Build & Production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+npm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📚 Project layout (high level)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `app/` — App Router pages, layouts, and data-fetching.
+- `public/` — Static assets.
+- `styles/` or `globals.css` — global styling.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
