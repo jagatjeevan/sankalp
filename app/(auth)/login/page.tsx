@@ -47,7 +47,7 @@ export default function LoginPage() {
           <input
             id="email"
             type="email"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
@@ -62,7 +62,7 @@ export default function LoginPage() {
           <input
             id="password"
             type="password"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="••••••••"
@@ -75,15 +75,12 @@ export default function LoginPage() {
         ) : null}
 
         <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-indigo-500"
-          >
+          <button type="submit" className="rounded-xl px-5 py-3 font-semibold btn-primary">
             Sign in
           </button>
           <Link
             href="/forgot-password"
-            className="text-sm font-semibold text-indigo-600 hover:underline"
+            className="text-sm font-semibold text-primary hover:underline"
           >
             Forgot password?
           </Link>

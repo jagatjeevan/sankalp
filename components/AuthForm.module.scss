@@ -12,7 +12,7 @@
   display: none;
   flex: 1;
   padding: 2.5rem;
-  background: #9f5b2d;
+  background: var(--primary);
   color: white;
   position: relative;
   flex-direction: column;
@@ -66,8 +66,8 @@
   padding: 0.85rem 1rem;
   border-radius: 0.75rem;
   border: none;
-  background: #f3c007;
-  color: #0a0a0a;
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-weight: 700;
   cursor: pointer;
   margin-top: 1rem;

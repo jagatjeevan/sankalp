@@ -53,7 +53,7 @@ export default function SignUpPage() {
           <input
             id="email"
             type="email"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
@@ -68,7 +68,7 @@ export default function SignUpPage() {
           <input
             id="password"
             type="password"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="••••••••"
@@ -83,7 +83,7 @@ export default function SignUpPage() {
           <input
             id="confirmPassword"
             type="password"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             placeholder="••••••••"
@@ -95,10 +95,7 @@ export default function SignUpPage() {
           <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         ) : null}
 
-        <button
-          type="submit"
-          className="w-full rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-indigo-500"
-        >
+        <button type="submit" className="w-full rounded-xl px-5 py-3 font-semibold btn-primary">
           Create account
         </button>
       </form>

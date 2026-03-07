@@ -2,6 +2,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --card: #ffffff;
+  --muted: #64748b;
+  --border: rgba(148, 163, 184, 0.3);
+}
+
+[data-theme='terracotta'] {
+  --primary: #9f5b2d;
+  --primary-foreground: #ffffff;
+  --background: #f7f3ee;
+  --foreground: #1f1a16;
+  --card: #ffffff;
+  --muted: #6b5b4c;
+  --border: rgba(140, 118, 98, 0.35);
 }
 
 @theme inline {

@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
             <input
               id="email"
               type="email"
-              className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
@@ -51,10 +51,7 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-indigo-500"
-          >
+          <button type="submit" className="w-full rounded-xl px-5 py-3 font-semibold btn-primary">
             Send reset link
           </button>
         </form>

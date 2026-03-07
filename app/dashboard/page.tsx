@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { clearAuthUser, getAuthUser } from '@/lib/auth';
+import { applyTheme, initTheme, setStoredTheme, themes, type ThemeKey } from '@/lib/theme';
 import Image from 'next/image';
 
 type Task = {
@@ -41,10 +42,14 @@ function generateId() {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(() => loadDashboard());
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(() => {
+    const loaded = loadDashboard();
+    return loaded[0]?.id ?? null;
+  });
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [theme, setTheme] = useState<ThemeKey>(() => initTheme());
 
   const currentCategory = useMemo(() => {
     return categories.find((c) => c.id === selectedCategoryId) ?? categories[0] ?? null;
@@ -53,13 +58,13 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!getAuthUser()) {
       router.replace('/login');
-      return;
     }
-
-    const loaded = loadDashboard();
-    setCategories(loaded);
-    if (loaded.length > 0) setSelectedCategoryId(loaded[0].id);
   }, [router]);
+
+  useEffect(() => {
+    applyTheme(theme);
+    setStoredTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     saveDashboard(categories);
@@ -68,6 +73,12 @@ export default function DashboardPage() {
   const handleLogout = () => {
     clearAuthUser();
     router.replace('/login');
+  };
+
+  const handleThemeChange = (themeValue: ThemeKey) => {
+    setTheme(themeValue);
+    applyTheme(themeValue);
+    setStoredTheme(themeValue);
   };
 
   const addCategory = () => {
@@ -129,6 +140,19 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-700">{getAuthUser()?.email ?? ''}</span>
+
+          <select
+            value={theme}
+            onChange={(event) => handleThemeChange(event.target.value as ThemeKey)}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus-primary"
+          >
+            {Object.values(themes).map((themeOption) => (
+              <option key={themeOption.value} value={themeOption.value}>
+                {themeOption.label}
+              </option>
+            ))}
+          </select>
+
           <button
             onClick={handleLogout}
             className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
@@ -146,12 +170,12 @@ export default function DashboardPage() {
             <input
               value={newCategoryName}
               onChange={(event) => setNewCategoryName(event.target.value)}
-              className="flex-1 rounded-xl border border-slate-200 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              className="flex-1 rounded-xl border border-slate-200 px-3 py-2 focus-primary"
               placeholder="New category"
             />
             <button
               onClick={addCategory}
-              className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+              className="rounded-xl px-4 py-2 text-sm font-semibold btn-primary"
             >
               Add
             </button>
@@ -167,7 +191,7 @@ export default function DashboardPage() {
                   onClick={() => setSelectedCategoryId(category.id)}
                   className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-semibold ${
                     category.id === currentCategory?.id
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-primary text-white'
                       : 'text-slate-700 hover:bg-slate-100'
                   }`}
                 >
@@ -196,12 +220,12 @@ export default function DashboardPage() {
                 <input
                   value={newTaskTitle}
                   onChange={(event) => setNewTaskTitle(event.target.value)}
-                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 focus-primary"
                   placeholder="Add a new task"
                 />
                 <button
                   onClick={addTask}
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+                  className="rounded-xl px-4 py-2 text-sm font-semibold btn-primary"
                 >
                   Add task
                 </button>
@@ -226,7 +250,7 @@ export default function DashboardPage() {
                         type="checkbox"
                         checked={task.done}
                         onChange={() => toggleTask(task.id)}
-                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                        className="h-4 w-4 rounded border-slate-300 text-primary focus-primary"
                       />
                       <span
                         className={task.done ? 'text-slate-400 line-through' : 'text-slate-800'}
