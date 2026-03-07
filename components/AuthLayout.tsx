@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { ReactNode } from 'react';
 import styles from './AuthForm.module.scss';
 import Image from 'next/image';
@@ -43,18 +42,6 @@ export function AuthLayout({ title, description, children, footer }: AuthLayoutP
           {children}
 
           {footer ? <div className="mt-6 text-center text-sm text-slate-500">{footer}</div> : null}
-
-          <div className="mt-8 text-xs text-slate-400">
-            By continuing, you agree to our{' '}
-            <Link href="#" className="font-semibold text-slate-600">
-              Terms
-            </Link>{' '}
-            and{' '}
-            <Link href="#" className="font-semibold text-slate-600">
-              Privacy
-            </Link>
-            .
-          </div>
         </section>
       </div>
     </div>

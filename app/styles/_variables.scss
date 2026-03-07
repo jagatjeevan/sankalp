@@ -19,6 +19,46 @@
   --border: rgba(140, 118, 98, 0.35);
 }
 
+[data-theme='ocean'] {
+  --primary: #0b7285;
+  --primary-foreground: #ffffff;
+  --background: #effafa;
+  --foreground: #0f2937;
+  --card: #ffffff;
+  --muted: #4a6278;
+  --border: rgba(11, 114, 133, 0.35);
+}
+
+[data-theme='mint'] {
+  --primary: #2f9e44;
+  --primary-foreground: #ffffff;
+  --background: #effaf1;
+  --foreground: #0b3622;
+  --card: #ffffff;
+  --muted: #4f755b;
+  --border: rgba(47, 158, 68, 0.35);
+}
+
+[data-theme='sunrise'] {
+  --primary: #f76707;
+  --primary-foreground: #ffffff;
+  --background: #fff5ed;
+  --foreground: #2d1a10;
+  --card: #ffffff;
+  --muted: #9e603f;
+  --border: rgba(247, 103, 7, 0.35);
+}
+
+[data-theme='dark'] {
+  --primary: #3395f0;
+  --primary-foreground: #e9e9e9;
+  --background: #212121;
+  --foreground: #e9e9e9;
+  --card: #2a2a2a;
+  --muted: #a1a1a1;
+  --border: rgba(117, 143, 172, 0.35);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
