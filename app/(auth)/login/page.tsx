@@ -1,9 +1,10 @@
 'use client';
 
+import type React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
-import { setAuthUser } from '@/lib/auth';
+import { useState } from 'react';
+import { signIn } from '@/lib/auth';
 import { AuthLayout } from '@/components/AuthLayout';
 
 export default function LoginPage() {
@@ -11,8 +12,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
@@ -21,8 +23,15 @@ export default function LoginPage() {
       return;
     }
 
-    // NOTE: This is a demo flow. In a real app, authenticate against a backend.
-    setAuthUser({ email });
+    setLoading(true);
+    const { error } = await signIn(email, password);
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
     router.push('/dashboard');
   };
 
@@ -75,8 +84,12 @@ export default function LoginPage() {
         ) : null}
 
         <div className="flex items-center justify-between">
-          <button type="submit" className="rounded-xl px-5 py-3 font-semibold btn-primary">
-            Sign in
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-xl px-5 py-3 font-semibold btn-primary"
+          >
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
           <Link
             href="/forgot-password"

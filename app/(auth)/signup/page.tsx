@@ -1,9 +1,10 @@
 'use client';
 
+import type React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
-import { setAuthUser } from '@/lib/auth';
+import { useState } from 'react';
+import { signUp } from '@/lib/auth';
 import { AuthLayout } from '@/components/AuthLayout';
 
 export default function SignUpPage() {
@@ -12,8 +13,9 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
@@ -27,8 +29,15 @@ export default function SignUpPage() {
       return;
     }
 
-    // NOTE: This is a demo flow. In a real app, register the user on a backend.
-    setAuthUser({ email });
+    setLoading(true);
+    const { error } = await signUp(email, password);
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
     router.push('/dashboard');
   };
 
@@ -95,8 +104,12 @@ export default function SignUpPage() {
           <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
         ) : null}
 
-        <button type="submit" className="w-full rounded-xl px-5 py-3 font-semibold btn-primary">
-          Create account
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl px-5 py-3 font-semibold btn-primary"
+        >
+          {loading ? 'Creating account…' : 'Create account'}
         </button>
       </form>
     </AuthLayout>

@@ -2,134 +2,100 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { clearAuthUser, getAuthUser } from '@/lib/auth';
-import { applyTheme, initTheme, setStoredTheme, themes, type ThemeKey } from '@/lib/theme';
+import { getCurrentUser, signOut } from '@/lib/auth';
+import {
+  createCategory,
+  createTodo,
+  deleteTodo,
+  getCategoriesWithTodos,
+  updateTodoDone,
+} from '@/utils/supabase/db';
 import Image from 'next/image';
+import type { CategoryWithTodos, SupabaseTodo } from '@/utils/supabase/types';
 
-type Task = {
+type DashboardCategory = CategoryWithTodos;
+type Task = SupabaseTodo;
+
+type User = {
   id: string;
-  title: string;
-  done: boolean;
+  email: string;
 };
-
-type Category = {
-  id: string;
-  name: string;
-  tasks: Task[];
-};
-
-const STORAGE_KEY = 'sankalp::dashboard';
-
-function loadDashboard(): Category[] {
-  if (typeof window === 'undefined') return [];
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw) as Category[];
-  } catch {
-    return [];
-  }
-}
-
-function saveDashboard(categories: Category[]) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-}
-
-function generateId() {
-  return crypto.randomUUID();
-}
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>(() => loadDashboard());
+  const [user, setUser] = useState<User | null>(null);
+  const [categories, setCategories] = useState<DashboardCategory[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(() => {
-    const loaded = loadDashboard();
-    return loaded[0]?.id ?? null;
-  });
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [theme, setTheme] = useState<ThemeKey>(() => initTheme());
 
   const currentCategory = useMemo(() => {
     return categories.find((c) => c.id === selectedCategoryId) ?? categories[0] ?? null;
   }, [categories, selectedCategoryId]);
 
+  const loadCategories = async (userId: string) => {
+    const data = await getCategoriesWithTodos(userId);
+    setCategories(data);
+    setSelectedCategoryId((prev) => prev ?? data[0]?.id ?? null);
+  };
+
   useEffect(() => {
-    if (!getAuthUser()) {
-      router.replace('/login');
-    }
+    const init = async () => {
+      const currentUser = await getCurrentUser();
+      if (!currentUser) {
+        router.replace('/login');
+        return;
+      }
+      setUser(currentUser);
+      await loadCategories(currentUser.id);
+    };
+
+    init();
   }, [router]);
 
-  useEffect(() => {
-    applyTheme(theme);
-    setStoredTheme(theme);
-  }, [theme]);
-
-  useEffect(() => {
-    saveDashboard(categories);
-  }, [categories]);
-
-  const handleLogout = () => {
-    clearAuthUser();
+  const handleLogout = async () => {
+    await signOut();
     router.replace('/login');
   };
 
-  const handleThemeChange = (themeValue: ThemeKey) => {
-    setTheme(themeValue);
-    applyTheme(themeValue);
-    setStoredTheme(themeValue);
-  };
-
-  const addCategory = () => {
-    if (!newCategoryName.trim()) return;
-    const next: Category = {
-      id: generateId(),
-      name: newCategoryName.trim(),
-      tasks: [],
-    };
-    setCategories((prev) => [...prev, next]);
-    setSelectedCategoryId(next.id);
+  const addCategory = async () => {
+    if (!user || !newCategoryName.trim()) return;
+    const category = await createCategory(user.id, newCategoryName.trim());
+    setCategories((prev) => [...prev, { ...category, todos: [] }]);
+    setSelectedCategoryId(category.id);
     setNewCategoryName('');
   };
 
-  const addTask = () => {
-    if (!currentCategory || !newTaskTitle.trim()) return;
-    const task: Task = { id: generateId(), title: newTaskTitle.trim(), done: false };
+  const updateCategoryTodos = (categoryId: string, updater: (todos: Task[]) => Task[]) => {
     setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === currentCategory.id ? { ...cat, tasks: [...cat.tasks, task] } : cat,
-      ),
+      prev.map((cat) => {
+        if (cat.id !== categoryId) return cat;
+        return { ...cat, todos: updater(cat.todos) };
+      }),
     );
+  };
+
+  const addTask = async () => {
+    if (!user || !currentCategory || !newTaskTitle.trim()) return;
+    const todo = await createTodo(user.id, currentCategory.id, newTaskTitle.trim());
+    updateCategoryTodos(currentCategory.id, (todos) => [...todos, todo]);
     setNewTaskTitle('');
   };
 
-  const toggleTask = (taskId: string) => {
+  const toggleTask = async (taskId: string) => {
     if (!currentCategory) return;
-    setCategories((prev) =>
-      prev.map((cat) => {
-        if (cat.id !== currentCategory.id) return cat;
-        return {
-          ...cat,
-          tasks: cat.tasks.map((task) =>
-            task.id === taskId ? { ...task, done: !task.done } : task,
-          ),
-        };
-      }),
+    const task = currentCategory.todos.find((t) => t.id === taskId);
+    if (!task) return;
+    const updated = await updateTodoDone(taskId, !task.done);
+    updateCategoryTodos(currentCategory.id, (todos) =>
+      todos.map((t) => (t.id === taskId ? updated : t)),
     );
   };
 
-  const removeTask = (taskId: string) => {
+  const removeTask = async (taskId: string) => {
     if (!currentCategory) return;
-    setCategories((prev) =>
-      prev.map((cat) => {
-        if (cat.id !== currentCategory.id) return cat;
-        return {
-          ...cat,
-          tasks: cat.tasks.filter((task) => task.id !== taskId),
-        };
-      }),
-    );
+    await deleteTodo(taskId);
+    updateCategoryTodos(currentCategory.id, (todos) => todos.filter((t) => t.id !== taskId));
   };
 
   return (
@@ -139,19 +105,7 @@ export default function DashboardPage() {
           <Image src="/sankalp-hero.png" alt="Sankalp Logo" width={110} height={42} />
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-700">{getAuthUser()?.email ?? ''}</span>
-
-          <select
-            value={theme}
-            onChange={(event) => handleThemeChange(event.target.value as ThemeKey)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus-primary"
-          >
-            {Object.values(themes).map((themeOption) => (
-              <option key={themeOption.value} value={themeOption.value}>
-                {themeOption.label}
-              </option>
-            ))}
-          </select>
+          <span className="text-sm text-slate-700">{user?.email ?? ''}</span>
 
           <button
             onClick={handleLogout}
@@ -235,12 +189,12 @@ export default function DashboardPage() {
 
           {currentCategory ? (
             <ul className="mt-6 space-y-3">
-              {currentCategory.tasks.length === 0 ? (
+              {currentCategory.todos.length === 0 ? (
                 <li className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
                   No tasks yet — add one above.
                 </li>
               ) : (
-                currentCategory.tasks.map((task) => (
+                currentCategory.todos.map((task) => (
                   <li
                     key={task.id}
                     className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3"

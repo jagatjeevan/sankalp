@@ -1,32 +1,37 @@
-'use client';
+import type { Session } from '@supabase/supabase-js';
+import { supabaseClient } from '@/utils/supabase/client';
 
 export type AuthUser = {
+  id: string;
   email: string;
 };
 
-const STORAGE_KEY = 'sankalp::user';
-
-export function getAuthUser(): AuthUser | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as AuthUser;
-  } catch {
-    return null;
-  }
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  const { data } = await supabaseClient.auth.getSession();
+  const user = data.session?.user;
+  if (!user) return null;
+  return { id: user.id, email: user.email ?? '' };
 }
 
-export function setAuthUser(user: AuthUser) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+export async function signUp(email: string, password: string) {
+  const response = await supabaseClient.auth.signUp({ email, password });
+  return response;
 }
 
-export function clearAuthUser() {
-  if (typeof window === 'undefined') return;
-  window.localStorage.removeItem(STORAGE_KEY);
+export async function signIn(email: string, password: string) {
+  const response = await supabaseClient.auth.signInWithPassword({ email, password });
+  return response;
 }
 
-export function isLoggedIn() {
-  return Boolean(getAuthUser());
+export async function signOut() {
+  await supabaseClient.auth.signOut();
+}
+
+export async function resetPassword(email: string) {
+  const response = await supabaseClient.auth.resetPasswordForEmail(email);
+  return response;
+}
+
+export function onAuthStateChange(callback: (event: string, session: Session | null) => void) {
+  return supabaseClient.auth.onAuthStateChange(callback);
 }

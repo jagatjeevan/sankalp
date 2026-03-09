@@ -1,18 +1,32 @@
 'use client';
 
+import type React from 'react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { resetPassword } from '@/lib/auth';
 import { AuthLayout } from '@/components/AuthLayout';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError(null);
+
     if (!email.trim()) return;
 
-    // In a real app, send password reset email here.
+    setLoading(true);
+    const { error } = await resetPassword(email);
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
     setSent(true);
   };
 
@@ -51,8 +65,16 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <button type="submit" className="w-full rounded-xl px-5 py-3 font-semibold btn-primary">
-            Send reset link
+          {error ? (
+            <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl px-5 py-3 font-semibold btn-primary"
+          >
+            {loading ? 'Sending…' : 'Send reset link'}
           </button>
         </form>
       )}
