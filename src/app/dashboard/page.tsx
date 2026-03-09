@@ -174,19 +174,19 @@ export default function DashboardPage() {
       </header>
 
       <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row">
-        <aside className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:w-80">
+        <aside className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:w-90">
           <h2 className="text-lg font-semibold text-slate-900">Categories</h2>
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex items-center gap-2">
             <input
               value={newCategoryName}
               onChange={(event) => setNewCategoryName(event.target.value)}
-              className="flex-1 rounded-xl border border-slate-200 px-3 py-2 focus-primary"
+              className="flex-1 h-9 rounded-xl border border-slate-200 px-3 py-1.5 focus-primary"
               placeholder="New category"
             />
             <button
               onClick={addCategory}
-              className="rounded-xl px-4 py-2 text-sm font-semibold btn-primary"
+              className="h-9 rounded-xl px-4 py-2 text-sm font-semibold btn-primary"
             >
               Add
             </button>
@@ -231,12 +231,12 @@ export default function DashboardPage() {
                 <input
                   value={newTaskTitle}
                   onChange={(event) => setNewTaskTitle(event.target.value)}
-                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 focus-primary"
+                  className="flex-1 h-9 rounded-xl border border-slate-200 px-3 py-1.5 focus-primary"
                   placeholder="Add a new task"
                 />
                 <button
                   onClick={addTask}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold btn-primary"
+                  className="h-9 rounded-xl px-4 py-2 text-sm font-semibold btn-primary"
                 >
                   Add task
                 </button>

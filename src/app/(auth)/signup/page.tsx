@@ -63,7 +63,7 @@ export default function SignUpPage() {
           <input
             id="name"
             type="text"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 focus-primary"
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="Your name"
@@ -78,7 +78,7 @@ export default function SignUpPage() {
           <input
             id="email"
             type="email"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 focus-primary"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
@@ -93,7 +93,7 @@ export default function SignUpPage() {
           <input
             id="password"
             type="password"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 focus-primary"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="••••••••"
@@ -108,7 +108,7 @@ export default function SignUpPage() {
           <input
             id="confirmPassword"
             type="password"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 focus-primary"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             placeholder="••••••••"

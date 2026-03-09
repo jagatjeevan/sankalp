@@ -56,7 +56,7 @@ export default function LoginPage() {
           <input
             id="email"
             type="email"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 focus-primary"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
@@ -71,7 +71,7 @@ export default function LoginPage() {
           <input
             id="password"
             type="password"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 focus-primary"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="••••••••"
