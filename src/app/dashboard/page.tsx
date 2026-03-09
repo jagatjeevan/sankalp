@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, signOut } from '@/lib/auth';
 import {
@@ -13,7 +13,9 @@ import {
 import Image from 'next/image';
 import type { CategoryWithTodos, SupabaseTodo } from '@/utils/supabase/types';
 import type { ThemeKey } from '@/lib/theme';
-import { applyTheme, initTheme, setStoredTheme, themes } from '@/lib/theme';
+import { applyTheme, initTheme, setStoredTheme } from '@/lib/theme';
+import { DashboardMenu } from '@/components/DashboardMenu';
+import { LocationWidget } from '@/components/LocationWidget';
 
 type DashboardCategory = CategoryWithTodos;
 type Task = SupabaseTodo;
@@ -32,15 +34,12 @@ export default function DashboardPage() {
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [theme, setTheme] = useState<ThemeKey>(() => initTheme());
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const currentCategory = useMemo(() => {
     return categories.find((c) => c.id === selectedCategoryId) ?? categories[0] ?? null;
   }, [categories, selectedCategoryId]);
 
   const displayName = user?.displayName ?? user?.email ?? '';
-  const userInitial = displayName ? displayName[0].toUpperCase() : '?';
 
   const loadCategories = async (userId: string) => {
     const data = await getCategoriesWithTodos(userId);
@@ -66,16 +65,6 @@ export default function DashboardPage() {
     applyTheme(theme);
     setStoredTheme(theme);
   }, [theme]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [menuOpen]);
 
   const handleLogout = async () => {
     await signOut();
@@ -129,47 +118,13 @@ export default function DashboardPage() {
           <Image src="/sankalp-hero.png" alt="Sankalp Logo" width={110} height={42} />
         </div>
         <div className="flex items-center gap-4">
-          <div ref={menuRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setMenuOpen((open) => !open)}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-sm"
-            >
-              {userInitial}
-            </button>
-
-            {menuOpen ? (
-              <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
-                <div className="mb-3">
-                  <p className="text-sm font-semibold text-slate-900">{displayName}</p>
-                  <p className="text-xs text-slate-500">{user?.email}</p>
-                </div>
-
-                <div className="mb-3">
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Theme</label>
-                  <select
-                    value={theme}
-                    onChange={(event) => setTheme(event.target.value as ThemeKey)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus-primary"
-                  >
-                    {Object.values(themes).map((themeOption) => (
-                      <option key={themeOption.value} value={themeOption.value}>
-                        {themeOption.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-                >
-                  Sign out
-                </button>
-              </div>
-            ) : null}
-          </div>
+          <DashboardMenu
+            displayName={displayName}
+            email={user?.email}
+            theme={theme}
+            onThemeChange={setTheme}
+            onLogout={handleLogout}
+          />
         </div>
       </header>
 
@@ -282,6 +237,7 @@ export default function DashboardPage() {
           ) : null}
         </section>
       </main>
+      <LocationWidget />
     </div>
   );
 }
