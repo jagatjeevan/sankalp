@@ -4,17 +4,29 @@ import { supabaseClient } from '@/utils/supabase/client';
 export type AuthUser = {
   id: string;
   email: string;
+  displayName: string | null;
 };
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const { data } = await supabaseClient.auth.getSession();
   const user = data.session?.user;
   if (!user) return null;
-  return { id: user.id, email: user.email ?? '' };
+
+  const displayName = (user.user_metadata as { full_name?: string } | undefined)?.full_name ?? null;
+
+  return { id: user.id, email: user.email ?? '', displayName };
 }
 
-export async function signUp(email: string, password: string) {
-  const response = await supabaseClient.auth.signUp({ email, password });
+export async function signUp(email: string, password: string, fullName?: string) {
+  const response = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+      },
+    },
+  });
   return response;
 }
 

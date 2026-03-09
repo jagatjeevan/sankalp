@@ -43,7 +43,7 @@ function savePosition(position: Position) {
 
 export function ThemeSwitcher() {
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState<ThemeKey>('default');
+  const [theme, setTheme] = useState<ThemeKey>(() => getStoredTheme());
   const [position, setPosition] = useState<Position>(INITIAL_POSITION);
   const [dragging, setDragging] = useState(false);
   const [placement, setPlacement] = useState({ vertical: 'bottom', horizontal: 'left' } as {

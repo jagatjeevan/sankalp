@@ -9,6 +9,7 @@ import { AuthLayout } from '@/components/AuthLayout';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,7 +20,7 @@ export default function SignUpPage() {
     event.preventDefault();
     setError(null);
 
-    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError('All fields are required.');
       return;
     }
@@ -30,7 +31,7 @@ export default function SignUpPage() {
     }
 
     setLoading(true);
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, name.trim());
     setLoading(false);
 
     if (error) {
@@ -55,6 +56,21 @@ export default function SignUpPage() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-medium text-slate-700" htmlFor="name">
+            Full name
+          </label>
+          <input
+            id="name"
+            type="text"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus-primary"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Your name"
+            required
+          />
+        </div>
+
         <div>
           <label className="block font-medium text-slate-700" htmlFor="email">
             Email address

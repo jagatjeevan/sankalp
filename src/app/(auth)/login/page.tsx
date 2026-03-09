@@ -42,7 +42,7 @@ export default function LoginPage() {
       footer={
         <p>
           Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-semibold text-slate-700">
+          <Link href="/signup" className="font-semibold text-primary">
             Sign up
           </Link>
         </p>
