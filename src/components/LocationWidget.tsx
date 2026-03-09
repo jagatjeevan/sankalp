@@ -1,8 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { upsertUserLocation } from '@/utils/supabase/db';
 
-export function LocationWidget() {
+type LocationWidgetProps = {
+  userId: string;
+  email: string;
+  fullName: string;
+};
+
+const timeInterval = 1000 * 60 * 12; // 12 minutes
+
+export function LocationWidget({ userId, email, fullName }: LocationWidgetProps) {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -17,11 +26,18 @@ export function LocationWidget() {
     setLocationError(null);
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        try {
+          await upsertUserLocation(userId, email, fullName, lat, lng);
+        } catch (error) {
+          console.error('Failed to store location', error);
+          setLocationError('Failed to store location.');
+        }
+
+        setLocation({ lat, lng });
         setIsLocating(false);
       },
       (error) => {
@@ -34,6 +50,14 @@ export function LocationWidget() {
       },
     );
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      requestLocation();
+    }, timeInterval);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <main className="mx-auto px-6 max-w-6xl">

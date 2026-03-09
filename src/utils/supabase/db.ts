@@ -1,5 +1,5 @@
 import { supabaseClient } from './client';
-import type { CategoryWithTodos, SupabaseTodo } from './types';
+import type { CategoryWithTodos, SupabaseLocation, SupabaseTodo } from './types';
 
 export async function getCategoriesWithTodos(userId: string): Promise<CategoryWithTodos[]> {
   const { data, error } = await supabaseClient
@@ -63,4 +63,54 @@ export async function deleteTodo(todoId: string) {
   if (error) {
     throw error;
   }
+}
+
+export async function upsertUserLocation(
+  userId: string,
+  email: string,
+  fullName: string,
+  latitude: number,
+  longitude: number,
+): Promise<SupabaseLocation> {
+  // Fetch existing record to maintain a location history
+  const { data: existing, error: fetchError } = await supabaseClient
+    .from('user_locations')
+    .select('location_history')
+    .eq('user_id', userId)
+    .single();
+
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    // PGRST116 is "No rows found"; it's fine if this is the first insert
+    throw fetchError;
+  }
+
+  const now = new Date().toISOString();
+  const newEntry = { lat: latitude, lng: longitude, at: now };
+
+  const existingHistory = Array.isArray(existing?.location_history)
+    ? (existing.location_history as any[])
+    : [];
+  const nextHistory = [...existingHistory, newEntry].slice(-30);
+
+  const { data, error } = await supabaseClient
+    .from('user_locations')
+    .upsert(
+      {
+        user_id: userId,
+        email,
+        full_name: fullName,
+        latitude,
+        longitude,
+        location_history: nextHistory,
+      },
+      { onConflict: 'user_id' },
+    )
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as unknown as SupabaseLocation;
 }

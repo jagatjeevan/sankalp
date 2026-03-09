@@ -20,5 +20,18 @@ create table if not exists todos (
   created_at timestamptz not null default now()
 );
 
+create table if not exists user_locations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  email text not null,
+  full_name text not null,
+  latitude double precision not null,
+  longitude double precision not null,
+  location_history jsonb not null default '[]',
+  created_at timestamptz not null default now(),
+  unique (user_id)
+);
+
 create index if not exists idx_categories_user on categories(user_id);
 create index if not exists idx_todos_user_category on todos(user_id, category_id);
+create index if not exists idx_user_locations_user on user_locations(user_id);

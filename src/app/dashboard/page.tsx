@@ -237,7 +237,9 @@ export default function DashboardPage() {
           ) : null}
         </section>
       </main>
-      <LocationWidget />
+      {user ? (
+        <LocationWidget userId={user.id} email={user.email} fullName={user.displayName ?? ''} />
+      ) : null}
     </div>
   );
 }

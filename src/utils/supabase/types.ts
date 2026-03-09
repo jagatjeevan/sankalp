@@ -14,6 +14,23 @@ export type SupabaseTodo = {
   created_at: string;
 };
 
+export type SupabaseLocationHistoryItem = {
+  lat: number;
+  lng: number;
+  at: string;
+};
+
+export type SupabaseLocation = {
+  id: string;
+  user_id: string;
+  email: string;
+  full_name: string;
+  latitude: number;
+  longitude: number;
+  location_history: SupabaseLocationHistoryItem[];
+  created_at: string;
+};
+
 export type CategoryWithTodos = SupabaseCategory & {
   todos: SupabaseTodo[];
 };
