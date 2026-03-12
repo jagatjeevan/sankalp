@@ -40,7 +40,7 @@ export default function AuthenticatedLayout({ children }: Readonly<{ children: R
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-primary" />
           <p className="text-slate-600">Loading...</p>
@@ -54,7 +54,7 @@ export default function AuthenticatedLayout({ children }: Readonly<{ children: R
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen">
       <div className="flex min-h-screen">
         <Sidebar
           displayName={user.displayName ?? user.email}

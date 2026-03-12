@@ -105,7 +105,7 @@ export default function TodosPage() {
   };
 
   return (
-    <main className="bg-zinc-50">
+    <main>
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row">
         <aside className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:w-90">
           <h2 className="text-lg font-semibold text-slate-900">Categories</h2>
