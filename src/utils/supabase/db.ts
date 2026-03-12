@@ -29,6 +29,13 @@ export async function createCategory(userId: string, name: string) {
   return data;
 }
 
+export async function deleteCategory(categoryId: string) {
+  const { error } = await supabaseClient.from('categories').delete().eq('id', categoryId);
+  if (error) {
+    throw error;
+  }
+}
+
 export async function createTodo(userId: string, categoryId: string, title: string) {
   const { data, error } = await supabaseClient
     .from('todos')
@@ -88,7 +95,7 @@ export async function upsertUserLocation(
   const newEntry = { lat: latitude, lng: longitude, at: now };
 
   const existingHistory = Array.isArray(existing?.location_history)
-    ? (existing.location_history as any[])
+    ? existing.location_history
     : [];
   const nextHistory = [...existingHistory, newEntry].slice(-30);
 

@@ -6,6 +6,7 @@ import { getCurrentUser, signOut } from '@/lib/auth';
 import {
   createCategory,
   createTodo,
+  deleteCategory,
   deleteTodo,
   getCategoriesWithTodos,
   updateTodoDone,
@@ -111,6 +112,20 @@ export default function DashboardPage() {
     updateCategoryTodos(currentCategory.id, (todos) => todos.filter((t) => t.id !== taskId));
   };
 
+  const removeCategory = async (categoryId: string) => {
+    await deleteCategory(categoryId);
+    setCategories((prev) => {
+      const remaining = prev.filter((category) => category.id !== categoryId);
+      setSelectedCategoryId((currentSelectedId) => {
+        if (currentSelectedId && currentSelectedId !== categoryId) {
+          return currentSelectedId;
+        }
+        return remaining[0]?.id ?? null;
+      });
+      return remaining;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50">
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
@@ -152,17 +167,32 @@ export default function DashboardPage() {
               <p className="text-sm text-slate-500">No categories yet — add one above.</p>
             ) : (
               categories.map((category) => (
-                <button
+                <div
                   key={category.id}
-                  onClick={() => setSelectedCategoryId(category.id)}
-                  className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-semibold ${
-                    category.id === currentCategory?.id
-                      ? 'bg-primary text-white'
-                      : 'text-slate-700 hover:bg-slate-100'
+                  className={`flex items-center gap-2 rounded-xl px-3 py-2 ${
+                    category.id === currentCategory?.id ? 'bg-primary text-white' : 'text-slate-700'
                   }`}
                 >
-                  {category.name}
-                </button>
+                  <button
+                    onClick={() => setSelectedCategoryId(category.id)}
+                    className={`flex-1 text-left text-sm font-semibold ${
+                      category.id === currentCategory?.id ? '' : 'hover:text-slate-900'
+                    }`}
+                  >
+                    {category.name}
+                  </button>
+                  <button
+                    onClick={() => removeCategory(category.id)}
+                    className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                      category.id === currentCategory?.id
+                        ? 'bg-white/20 text-white hover:bg-white/30'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                    aria-label={`Delete ${category.name} category`}
+                  >
+                    Delete
+                  </button>
+                </div>
               ))
             )}
           </nav>
