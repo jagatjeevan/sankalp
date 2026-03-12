@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { getCurrentUser, signOut } from '@/lib/auth';
 import {
   createCategory,
   createTodo,
@@ -11,12 +9,10 @@ import {
   getCategoriesWithTodos,
   updateTodoDone,
 } from '@/utils/supabase/db';
-import Image from 'next/image';
+import { getCurrentUser } from '@/lib/auth';
 import type { CategoryWithTodos, SupabaseTodo } from '@/utils/supabase/types';
 import type { ThemeKey } from '@/lib/theme';
 import { applyTheme, initTheme, setStoredTheme } from '@/lib/theme';
-import { DashboardMenu } from '@/components/DashboardMenu';
-import { LocationWidget } from '@/components/LocationWidget';
 
 type DashboardCategory = CategoryWithTodos;
 type Task = SupabaseTodo;
@@ -27,20 +23,17 @@ type User = {
   displayName: string | null;
 };
 
-export default function DashboardPage() {
-  const router = useRouter();
+export default function TodosPage() {
   const [user, setUser] = useState<User | null>(null);
   const [categories, setCategories] = useState<DashboardCategory[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [theme, setTheme] = useState<ThemeKey>(() => initTheme());
+  const [theme] = useState<ThemeKey>(() => initTheme());
 
   const currentCategory = useMemo(() => {
     return categories.find((c) => c.id === selectedCategoryId) ?? categories[0] ?? null;
   }, [categories, selectedCategoryId]);
-
-  const displayName = user?.displayName ?? user?.email ?? '';
 
   const loadCategories = async (userId: string) => {
     const data = await getCategoriesWithTodos(userId);
@@ -51,26 +44,18 @@ export default function DashboardPage() {
   useEffect(() => {
     const init = async () => {
       const currentUser = await getCurrentUser();
-      if (!currentUser) {
-        router.replace('/login');
-        return;
-      }
+      if (!currentUser) return;
       setUser(currentUser);
       await loadCategories(currentUser.id);
     };
 
     init();
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
     setStoredTheme(theme);
   }, [theme]);
-
-  const handleLogout = async () => {
-    await signOut();
-    router.replace('/login');
-  };
 
   const addCategory = async () => {
     if (!user || !newCategoryName.trim()) return;
@@ -78,6 +63,13 @@ export default function DashboardPage() {
     setCategories((prev) => [...prev, { ...category, todos: [] }]);
     setSelectedCategoryId(category.id);
     setNewCategoryName('');
+  };
+
+  const deleteCurrentCategory = async () => {
+    if (!currentCategory) return;
+    await deleteCategory(currentCategory.id);
+    setCategories((prev) => prev.filter((c) => c.id !== currentCategory.id));
+    setSelectedCategoryId(null);
   };
 
   const updateCategoryTodos = (categoryId: string, updater: (todos: Task[]) => Task[]) => {
@@ -112,38 +104,9 @@ export default function DashboardPage() {
     updateCategoryTodos(currentCategory.id, (todos) => todos.filter((t) => t.id !== taskId));
   };
 
-  const removeCategory = async (categoryId: string) => {
-    await deleteCategory(categoryId);
-    setCategories((prev) => {
-      const remaining = prev.filter((category) => category.id !== categoryId);
-      setSelectedCategoryId((currentSelectedId) => {
-        if (currentSelectedId && currentSelectedId !== categoryId) {
-          return currentSelectedId;
-        }
-        return remaining[0]?.id ?? null;
-      });
-      return remaining;
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-        <div>
-          <Image src="/sankalp-hero.png" alt="Sankalp Logo" width={110} height={42} />
-        </div>
-        <div className="flex items-center gap-4">
-          <DashboardMenu
-            displayName={displayName}
-            email={user?.email}
-            theme={theme}
-            onThemeChange={setTheme}
-            onLogout={handleLogout}
-          />
-        </div>
-      </header>
-
-      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row">
+    <main className="bg-zinc-50">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10 lg:flex-row">
         <aside className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:w-90">
           <h2 className="text-lg font-semibold text-slate-900">Categories</h2>
 
@@ -167,31 +130,25 @@ export default function DashboardPage() {
               <p className="text-sm text-slate-500">No categories yet — add one above.</p>
             ) : (
               categories.map((category) => (
-                <div
-                  key={category.id}
-                  className={`flex items-center gap-2 rounded-xl px-3 py-2 ${
-                    category.id === currentCategory?.id ? 'bg-primary text-white' : 'text-slate-700'
-                  }`}
-                >
+                <div key={category.id} className="flex items-center gap-1">
                   <button
                     onClick={() => setSelectedCategoryId(category.id)}
-                    className={`flex-1 text-left text-sm font-semibold ${
-                      category.id === currentCategory?.id ? '' : 'hover:text-slate-900'
+                    className={`flex-1 block rounded-xl px-3 py-2 text-left text-sm font-semibold ${
+                      category.id === currentCategory?.id
+                        ? 'bg-primary text-white'
+                        : 'text-slate-700 hover:bg-slate-100'
                     }`}
                   >
                     {category.name}
                   </button>
-                  <button
-                    onClick={() => removeCategory(category.id)}
-                    className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                      category.id === currentCategory?.id
-                        ? 'bg-white/20 text-white hover:bg-white/30'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                    aria-label={`Delete ${category.name} category`}
-                  >
-                    Delete
-                  </button>
+                  {category.id === currentCategory?.id && (
+                    <button
+                      onClick={deleteCurrentCategory}
+                      className="rounded-lg bg-red-100 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-200"
+                    >
+                      <i className="fa-solid fa-trash" />
+                    </button>
+                  )}
                 </div>
               ))
             )}
@@ -216,6 +173,11 @@ export default function DashboardPage() {
                 <input
                   value={newTaskTitle}
                   onChange={(event) => setNewTaskTitle(event.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      addTask();
+                    }
+                  }}
                   className="flex-1 h-9 rounded-xl border border-slate-200 px-3 py-1.5 focus-primary"
                   placeholder="Add a new task"
                 />
@@ -264,12 +226,13 @@ export default function DashboardPage() {
                 ))
               )}
             </ul>
-          ) : null}
+          ) : (
+            <div className="mt-12 rounded-xl border-2 border-dashed border-slate-200 py-12 text-center">
+              <p className="text-slate-500">Select or create a category to start adding tasks.</p>
+            </div>
+          )}
         </section>
-      </main>
-      {user ? (
-        <LocationWidget userId={user.id} email={user.email} fullName={user.displayName ?? ''} />
-      ) : null}
-    </div>
+      </div>
+    </main>
   );
 }

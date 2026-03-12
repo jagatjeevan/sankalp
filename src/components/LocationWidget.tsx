@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { upsertUserLocation } from '@/utils/supabase/db';
 
 type LocationWidgetProps = {
@@ -11,12 +11,12 @@ type LocationWidgetProps = {
 
 const timeInterval = 1000 * 60 * 12; // 12 minutes
 
-export function LocationWidget({ userId, email, fullName }: LocationWidgetProps) {
+export function LocationWidget({ userId, email, fullName }: Readonly<LocationWidgetProps>) {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
 
-  const requestLocation = () => {
+  const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by your browser.');
       return;
@@ -49,7 +49,7 @@ export function LocationWidget({ userId, email, fullName }: LocationWidgetProps)
         timeout: 15000,
       },
     );
-  };
+  }, [email, fullName, userId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -57,10 +57,10 @@ export function LocationWidget({ userId, email, fullName }: LocationWidgetProps)
     }, timeInterval);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [requestLocation]);
 
   return (
-    <main className="mx-auto px-6 max-w-6xl">
+    <main className="mx-auto max-w-6xl">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-slate-900">Your location</h3>
         <p className="text-sm text-slate-600">
