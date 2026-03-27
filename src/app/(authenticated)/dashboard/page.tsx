@@ -26,7 +26,7 @@ const menuItems: readonly MenuItem[] = [
 
 export default function DashboardPage() {
   return (
-    <main className="bg-gradient-to-br from-zinc-50 to-zinc-100 px-6 py-12">
+    <main className="px-6 py-12">
       <div className="mx-auto max-w-4xl">
         <div className="mb-12">
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">Welcome</h1>
